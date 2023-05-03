@@ -6,8 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.util.Log.*
 import android.widget.Toast
+import com.example.part2_chapter6.Key.Companion.DB_URL
+import com.example.part2_chapter6.Key.Companion.DB_USERS
 import com.example.part2_chapter6.databinding.ActivityLoginBinding
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
@@ -53,7 +56,17 @@ class LoginActivity : AppCompatActivity() {
 
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
-                    if(task.isSuccessful){
+
+                    // 복습
+                    val currentUser = Firebase.auth.currentUser
+                    if(task.isSuccessful && currentUser != null){
+                        val userId = currentUser.uid
+                        val user = mutableMapOf<String, Any>()
+                        user["userId"] = userId
+                        user["username"] = email
+
+                        Firebase.database(DB_URL).reference.child(DB_USERS).child(userId).updateChildren(user)
+
 
                         val intent = Intent(this, MainActivity::class.java)
                         startActivity(intent)

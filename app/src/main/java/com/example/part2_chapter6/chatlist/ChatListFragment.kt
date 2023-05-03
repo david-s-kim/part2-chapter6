@@ -4,9 +4,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.part2_chapter6.Key
 import com.example.part2_chapter6.R
 import com.example.part2_chapter6.databinding.FragmentChatlistBinding
 import com.example.part2_chapter6.databinding.FragmentUserlistBinding
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 class ChatListFragment: Fragment(R.layout.fragment_chatlist) {
 
@@ -20,13 +27,25 @@ class ChatListFragment: Fragment(R.layout.fragment_chatlist) {
         binding.chatListRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = chatListAdapter
-
         }
 
-        chatListAdapter.submitList(
-           mutableListOf<ChatRoomItem?>().apply {
-               add(ChatRoomItem("11","22","33"))
-           }
-        )
+        // 복습
+        val currentUserId = Firebase.auth.currentUser?.uid ?: return
+        val chatRoomsDB = Firebase.database.reference.child(Key.DB_CHAT_ROOMS).child(currentUserId)
+
+        chatRoomsDB.addValueEventListener(object :ValueEventListener{
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val chatRoomList = snapshot.children.map {
+                    it.getValue(ChatRoomItem::class.java)
+                }
+                chatListAdapter.submitList(chatRoomList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+
     }
 }
