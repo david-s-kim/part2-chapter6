@@ -12,6 +12,7 @@ import com.example.part2_chapter6.databinding.ActivityLoginBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 
 class LoginActivity : AppCompatActivity() {
 
@@ -57,20 +58,24 @@ class LoginActivity : AppCompatActivity() {
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
 
-                    // 복습
                     val currentUser = Firebase.auth.currentUser
                     if(task.isSuccessful && currentUser != null){
                         val userId = currentUser.uid
-                        val user = mutableMapOf<String, Any>()
-                        user["userId"] = userId
-                        user["username"] = email
 
-                        Firebase.database(DB_URL).reference.child(DB_USERS).child(userId).updateChildren(user)
+                        Firebase.messaging.token.addOnCompleteListener{
+                            val token = it.result
 
+                            val user = mutableMapOf<String, Any>()
+                            user["userId"] = userId
+                            user["username"] = email
+                            user["fcmToken"] = token
 
-                        val intent = Intent(this, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                            Firebase.database(DB_URL).reference.child(DB_USERS).child(userId).updateChildren(user)
+
+                            val intent = Intent(this, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
                     } else {
                         Log.e("LoginActivity", task.exception.toString())
                         Toast.makeText(this, "이메일 또는 패스워드가 입력되지 않았습니다.", Toast.LENGTH_SHORT).show()

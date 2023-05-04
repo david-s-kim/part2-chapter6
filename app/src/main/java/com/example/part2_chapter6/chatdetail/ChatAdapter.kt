@@ -13,7 +13,6 @@ import com.example.part2_chapter6.databinding.ItemChatroomBinding
 import com.example.part2_chapter6.databinding.ItemUserBinding
 import com.example.part2_chapter6.userlist.UserItem
 
-// 복습
 class ChatAdapter : ListAdapter<ChatItem, ChatAdapter.ViewHolder>(differ) {
 
     var otherUserItem: UserItem? = null

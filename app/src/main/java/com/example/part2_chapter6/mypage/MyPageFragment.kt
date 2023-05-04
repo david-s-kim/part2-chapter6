@@ -22,7 +22,6 @@ class MyPageFragment: Fragment(R.layout.fragment_mypage) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMypageBinding.bind(view)
 
-        // 복습
         val currentUserId = Firebase.auth.currentUser?.uid ?: ""
         val currentUserDB = Firebase.database.reference.child(Key.DB_USERS).child(currentUserId)
 
@@ -33,7 +32,6 @@ class MyPageFragment: Fragment(R.layout.fragment_mypage) {
             binding.descriptionEditText.setText(currentUserItem.description)
 
         }
-        //
 
         binding.applyButton.setOnClickListener {
             val username = binding.usernameEditText.text.toString()
@@ -44,13 +42,11 @@ class MyPageFragment: Fragment(R.layout.fragment_mypage) {
                 return@setOnClickListener
             }
 
-            // 복습
             val user = mutableMapOf<String, Any>()
             user["username"] = username
             user["description"] = description
             currentUserDB.updateChildren(user)
         }
-        //
 
         binding.signOutButton.setOnClickListener {
             Firebase.auth.signOut()
